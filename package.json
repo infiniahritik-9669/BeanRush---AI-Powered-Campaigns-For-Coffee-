@@ -1,0 +1,13 @@
+{
+  "name": "xeno-ai-campaign-copilot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-native Mini CRM for BeanRush Coffee campaign management",
+  "scripts": {
+    "install:all": "cd apps/web && npm install && cd ../channel-service && npm install",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:channel": "cd apps/channel-service && npm run dev",
+    "db:push": "cd apps/web && npx prisma db push",
+    "seed": "cd apps/web && npx tsx prisma/seed.ts"
+  }
+}

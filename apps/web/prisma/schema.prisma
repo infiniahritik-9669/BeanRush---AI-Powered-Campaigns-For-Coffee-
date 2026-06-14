@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id        String       @id @default(cuid())
+  name      String
+  email     String       @unique
+  phone     String
+  city      String
+  gender    String
+  age       Int
+  createdAt DateTime     @default(now())
+  orders    Order[]
+  communications Communication[]
+}
+
+model Order {
+  id           String   @id @default(cuid())
+  customerId   String
+  productName  String
+  category     String
+  amount       Float
+  orderDate    DateTime
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model Segment {
+  id           String     @id @default(cuid())
+  name         String
+  description  String?
+  rulesJson    Json
+  createdByAi  Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  campaigns    Campaign[]
+}
+
+model Campaign {
+  id              String       @id @default(cuid())
+  name            String
+  segmentId       String
+  channel         String
+  messageTemplate String
+  status          String       @default("draft")
+  aiReasoning     String?
+  createdAt       DateTime     @default(now())
+  segment         Segment      @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  communications  Communication[]
+}
+
+model Communication {
+  id                   String                @id @default(cuid())
+  campaignId           String
+  customerId           String
+  channel              String
+  recipient            String
+  personalizedMessage  String
+  status               String                @default("queued")
+  sentAt               DateTime?
+  deliveredAt          DateTime?
+  failedAt             DateTime?
+  openedAt             DateTime?
+  clickedAt            DateTime?
+  convertedAt          DateTime?
+  conversionRevenue    Float?
+  createdAt            DateTime              @default(now())
+  campaign             Campaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  customer             Customer              @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  events               CommunicationEvent[]
+}
+
+model CommunicationEvent {
+  id               String         @id @default(cuid())
+  communicationId  String
+  eventType        String
+  payload          Json?
+  createdAt        DateTime       @default(now())
+  communication    Communication  @relation(fields: [communicationId], references: [id], onDelete: Cascade)
+}
